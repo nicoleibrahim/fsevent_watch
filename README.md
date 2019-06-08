@@ -1,48 +1,38 @@
 # fsevent_watch
 
-The tool allows you to watch filesystem events on a Mac.
+The tool allows you to monitor filesystem events or FSEvents on a Mac.
 
-This is a standalone fork the C tool inside https://github.com/thibaudgg/rb-fsevent
-focused on usability and *composability* with other tools.
+This is a clone from http://github.com/proger/fsevent_watch
 
-## Awesomeness
+Updated to include more flags, inode numbers and timestamps
 
-* `fsevent_watch` has a damn simple parseable output (tab-delimited)
+## Usage
+            fsevent_watch v0.2
 
+            A flexible command-line interface for the FSEvents API
+
+            Usage: fsevent_watch [OPTIONS]... [PATHS]...
+
+              -h, --help                you're looking at it
+              -V, --version             print version number and exit
+              -p, --show-plist          display the embedded Info.plist values
+              -s, --since-when=EventID  fire historical events since ID
+              -l, --latency=seconds     latency period (default='0.5')
+              -n, --no-defer            enable no-defer latency modifier
+              -F, --file-events         provide file level event data
+  
+# Sample Output
 ```
-% ./fsevent_watch -F .  # in the mean time i run `make clean fsevent_watch`
-86693279	0x00010200=[IRemoved]	/tank/proger/fsevent_watch/main.o
-86693282	0x00010200=[IRemoved]	/tank/proger/fsevent_watch/fsevent_watch
-86693291	0x00011900=[ICreated,IRenamed,IModified]	/tank/proger/fsevent_watch/cli.o-b995d254
-86693292	0x00010a00=[IRemoved,IRenamed]	/tank/proger/fsevent_watch/cli.o
-86693301	0x00011900=[ICreated,IRenamed,IModified]	/tank/proger/fsevent_watch/compat.o-b9dbbb8a
-86693302	0x00010a00=[IRemoved,IRenamed]	/tank/proger/fsevent_watch/compat.o
-86693305	0x00010100=[ICreated]	/tank/proger/fsevent_watch/main.o-2f7870a4
-86693311	0x00011900=[ICreated,IRenamed,IModified]	/tank/proger/fsevent_watch/main.o-2f7870a4
-86693312	0x00010a00=[IRemoved,IRenamed]	/tank/proger/fsevent_watch/main.o
-86693324	0x00014d00=[ICreated,IInodeMetaMod,IRenamed,IChangeOwner]	/tank/proger/fsevent_watch/fsevent_watch.ld_gYfEvE
-86693325	0x00010a00=[IRemoved,IRenamed]	/tank/proger/fsevent_watch/fsevent_watch
-```
-
-* `fsevent_watch` does line-buffering so you can even develop the tool with itself!
-
-```
-% ./fsevent_watch -F . | egrep --line-buffered '\.[ch]$' | xargs -t -n1 -I% make
-make
-clang -c -DCLI_VERSION="\"f785a34\"" -Wno-deprecated-declarations main.c -o main.o
-clang -framework CoreFoundation -framework CoreServices cli.o compat.o main.o -o fsevent_watch
-make
-make: `fsevent_watch' is up to date.
-make
-make: `fsevent_watch' is up to date.
-^C
+% ./fsevent_watch -F /Users/SomeUser/Desktop
+Current_Timestamp   Event_ID    Inode         Event_Flags                           Path
+2019-06-07 15:38:43	24880655	8599274640    0x00010100=[created,isfile]	        /Users/SomeUser/Desktop/My_Test_File.txt
+2019-06-07 15:39:58	24881111	8599274640    0x00011000=[modified,isfile]			/Users/SomeUser/Desktop/My_Test_File.txt
+2019-06-07 15:40:18	24881273	8599274640    0x00011000=[modified,isfile]			/Users/SomeUser/Desktop/My_Test_File.txt
+2019-06-07 15:40:40	24881611	0             0x00010200=[removed,isfile]	        /Users/SomeUser/Desktop/My_Test_File.txt
+2019-06-07 15:40:54	24881804	8599274718    0x00010100=[created,isfile]	        /Users/SomeUser/Desktop/My_Test_File.txt
 ```
 
-* or, for example, authoring a Markdown file with vim and redcarpet
 
-```
-% fsevent_watch -F | grep --line-buffered README.md'$' | xargs -I% -n1 sh -c 'redcarpet --parse-fenced-code-blocks --parse-autolink --render-prettify README.md > README.html'
-```
 
 ## Building
 

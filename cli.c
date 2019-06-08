@@ -10,10 +10,10 @@ const char* cli_info_help[] = {
   "  -s, --since-when=EventID  fire historical events since ID",
   "  -l, --latency=seconds     latency period (default='0.5')",
   "  -n, --no-defer            enable no-defer latency modifier",
-  "  -r, --watch-root          watch for when the root path has changed",
+  //"  -r, --watch-root          watch for when the root path has changed",
   // "  -i, --ignore-self         ignore current process",
-  "  -F, --file-events         provide file level event data",
-  "  -f, --format=name         output format (ignored)",
+  "  -F, --file-events         provide file level event data\n",
+  //"  -f, --format=name         output format (ignored)",
   0
 };
 
@@ -86,7 +86,7 @@ void cli_show_plist (void)
 
 void cli_print_version (void)
 {
-  printf("%s %s\n\n", CLI_NAME, CLI_VERSION);
+  printf("\n%s %s\n", CLI_NAME, CLI_VERSION);
 }
 
 void cli_print_help (void)

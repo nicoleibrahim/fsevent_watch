@@ -1,5 +1,11 @@
 #include "common.h"
 #include "cli.h"
+#include <stdio.h>
+#include <time.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 // TODO: set on fire. cli.{h,c} handle both parsing and defaults, so there's
 //       no need to set those here. also, in order to scope metadata by path,
@@ -16,13 +22,13 @@ static struct {
   CFTimeInterval           latency;
   FSEventStreamCreateFlags flags;
   CFMutableArrayRef        paths;
-  int                      format;
+  long                     format;
 } config = {
   (UInt64) kFSEventStreamEventIdSinceNow,
   (double) 0.3,
   (CFOptionFlags) kFSEventStreamCreateFlagNone,
   NULL,
-  0
+  0.0
 };
 
 // Prototypes
@@ -163,10 +169,45 @@ static void callback(__attribute__((unused)) FSEventStreamRef streamRef,
 {
   char** paths = eventPaths;
   char *buf = calloc(sizeof(FSEVENTSBITS), sizeof(char));
-
+  
   for (size_t i = 0; i < numEvents; i++) {
+	time_t curtime;
+    struct tm *loc_time;
+	char buffer[32];
+    long fd;
+    long inode;  
+    fd = open(paths[i], O_RDONLY);
+    inode = 1;
+    
+    if (fd < 0) {  
+        // some error occurred while opening the file  
+        fd = 0;
+        inode = 0;
+    }  
+
+    struct stat file_stat;
+    struct stat file_stat_l;  
+    long ret;  
+    ret = fstat (fd, &file_stat);  
+    if (ret < 0) {  
+       //printf("print here");
+    } 
+    if (inode == 1) {
+        lstat(paths[i], &file_stat_l);
+        inode = file_stat_l.st_ino;  
+    }
+
+    //Getting current time of system
+    curtime = time (NULL);
+    
+    // Converting current time to local time
+    loc_time = localtime (&curtime);
+    strftime(buffer, 32, "%Y-%m-%d %H:%M:%S", loc_time);
+
     sprintb(buf, eventFlags[i], FSEVENTSBITS);
-    printf("%llu\t%#.8x=[%s]\t%s\n", eventIds[i], eventFlags[i], buf, paths[i]);
+    
+    // fs_node not converting properly. 
+    printf("%s\t%llu\t%ld\t%#.8x\t%s\t%s\n", buffer, eventIds[i], inode, eventFlags[i], buf, paths[i]);
   }
   fflush(stdout);
   free(buf);
@@ -179,7 +220,7 @@ static void callback(__attribute__((unused)) FSEventStreamRef streamRef,
 static void stdin_callback(CFFileDescriptorRef fdref, CFOptionFlags callBackTypes, void *info)
 {
   char buf[1024];
-  int nread;
+  long nread;
 
   do {
     nread = read(STDIN_FILENO, buf, sizeof(buf));
@@ -196,7 +237,7 @@ static void stdin_callback(CFFileDescriptorRef fdref, CFOptionFlags callBackType
 int main(int argc, const char* argv[])
 {
   parse_cli_settings(argc, argv);
-
+  printf("Current_Timestamp\tEvent_ID\tInode\tFlags_Hex\tFlags_String\tPath\n");
   FSEventStreamContext context = {0, NULL, NULL, NULL, NULL};
   FSEventStreamRef stream;
   stream = FSEventStreamCreate(kCFAllocatorDefault,

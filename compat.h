@@ -43,5 +43,14 @@ extern FSEventStreamCreateFlags kFSEventStreamCreateFlagMarkSelf;
 extern FSEventStreamEventFlags  kFSEventStreamEventFlagOwnEvent;
 #endif
 
+#if MAC_OS_X_VERSION_MAX_ALLOWED < 1010
+extern FSEventStreamEventFlags  kFSEventStreamEventFlagItemIsHardlink,
+                                kFSEventStreamEventFlagItemIsLastHardlink;
+                                
+#endif
+
+#if MAC_OS_X_VERSION_MAX_ALLOWED < 1013
+extern FSEventStreamEventFlags kFSEventStreamEventFlagItemCloned;
+#endif
 
 #endif // fsevent_watch_compat_h

@@ -3,7 +3,7 @@ SRC= $(wildcard *.c)
 OBJ= $(SRC:.c=.o)
 
 CC= clang
-CFLAGS= -DCLI_VERSION="\"$(shell git describe --always)\""
+CFLAGS= ""
 CFLAGS+= -Wno-deprecated-declarations
 #CFLAGS+= -DDEBUG
 LDFLAGS= -framework CoreFoundation -framework CoreServices

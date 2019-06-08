@@ -7,6 +7,10 @@
 #define CLI_NAME "fsevent_watch"
 #endif /* CLI_NAME */
 
+#ifndef CLI_VERSION
+#define CLI_VERSION "v0.2"
+#endif /* CLI_VERSION */
+
 struct cli_info {
   UInt64 since_when_arg;
   double latency_arg;
